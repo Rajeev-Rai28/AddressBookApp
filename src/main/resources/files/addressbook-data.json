@@ -1,23 +1,12 @@
 [
   {
     "id": 0,
-    "firstName": "Vivek",
-    "lastName": "Rai",
-    "address": "Guna",
-    "city": "Gina",
-    "state": "MP",
-    "zip": "473330",
-    "phoneNumber": "1233443748",
-    "email": "vivek@gmail.com"
-  },
-  {
-    "id": 0,
     "firstName": "Rajeev",
     "lastName": "Rai",
-    "address": "ashoknagar",
-    "city": "ashoknagar",
-    "state": "MP",
-    "zip": "473331",
+    "address": "Bhopal",
+    "city": "Bhopal",
+    "state": "Mp",
+    "zip": "462020",
     "phoneNumber": "1234567890",
     "email": "rajeev@gmail.com"
   }
