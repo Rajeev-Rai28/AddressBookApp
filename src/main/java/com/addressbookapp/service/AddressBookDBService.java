@@ -176,4 +176,104 @@ public class AddressBookDBService {
 
         return stateCountMap;
     }
+    
+    public boolean addContactToDatabase(int addressBookId, Contact contact) {
+
+        String query = "INSERT INTO contacts(first_name,last_name,address,city,state,zip,phone_number,email,date_added,address_book_id) VALUES(?,?,?,?,?,?,?,?,?,?)";
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
+
+            ps.setString(1, contact.getFirstName());
+            ps.setString(2, contact.getLastName());
+            ps.setString(3, contact.getAddress());
+            ps.setString(4, contact.getCity());
+            ps.setString(5, contact.getState());
+            ps.setString(6, contact.getZip());
+            ps.setString(7, contact.getPhoneNumber());
+            ps.setString(8, contact.getEmail());
+            ps.setDate(9, java.sql.Date.valueOf(contact.getDateAdded()));
+            ps.setInt(10, addressBookId);
+
+            ps.executeUpdate();
+
+            return true;
+
+        } catch (SQLException e) {
+            System.out.println("Error inserting contact: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    // Add Multiple Contacts to database
+    public void addMultipleContactsToDatabase(String addressBookName, List<Contact> contacts) {
+
+        int addressBookId = ensureAddressBookExists(addressBookName);
+
+        List<Thread> threadList = new ArrayList<>();
+
+        for(Contact contact : contacts) {
+
+            Thread thread = new Thread(() -> {
+
+                System.out.println("Thread started for: " + contact.getFirstName());
+
+                boolean isAdded = addContactToDatabase(addressBookId, contact);
+
+                if(isAdded) {
+                    System.out.println("Contact inserted successfully: " + contact.getFirstName());
+                }else{
+                    System.out.println("Failed to insert contact: " + contact.getFirstName());
+                }
+
+            });
+
+            threadList.add(thread);
+            thread.start();
+        }
+
+        for(Thread thread : threadList) {
+            try{
+                thread.join();
+            }catch(InterruptedException e) {
+                System.out.println("Thread interrupted: " + e.getMessage());
+            }
+        }
+
+        System.out.println("All contacts inserted using threads.");
+    }
+    
+    // Checks if database exists or not?
+    public int ensureAddressBookExists(String addressBookName) {
+
+        String selectQuery = "SELECT id FROM address_books WHERE name = ?";
+        String insertQuery = "INSERT INTO address_books(name) VALUES(?)";
+
+        try (Connection connection = DBConnection.getConnection()) {
+
+            try (PreparedStatement ps = connection.prepareStatement(selectQuery)) {
+                ps.setString(1, addressBookName);
+
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    return rs.getInt("id");
+                }
+            }
+
+            try (PreparedStatement ps = connection.prepareStatement(insertQuery, PreparedStatement.RETURN_GENERATED_KEYS)) {
+                ps.setString(1, addressBookName);
+                ps.executeUpdate();
+
+                ResultSet keys = ps.getGeneratedKeys();
+                if (keys.next()) {
+                    return keys.getInt(1);
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error ensuring address book: " + e.getMessage());
+        }
+
+        return -1;
+    }
 }
