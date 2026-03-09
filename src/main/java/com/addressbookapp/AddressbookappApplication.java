@@ -11,8 +11,8 @@ public class AddressbookappApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(AddressbookappApplication.class, args);
 
-// You can temporarily test(feature/uc-02-add-contact-console) it inside AddressBookApplication:
-//
+ //You can temporarily test(feature/uc-02-add-contact-console) it inside AddressBookApplication:
+
 //		Contact contact = new Contact(
 //		        "Rajeev",
 //		        "Rai",
@@ -24,8 +24,8 @@ public class AddressbookappApplication {
 //		        "rajeev@gmail.com"
 //		);
 //
-//		System.out.println(contact);
-		
+//     	System.out.println(contact);
+//		
 	}
 
 }
