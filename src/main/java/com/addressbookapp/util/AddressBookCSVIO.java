@@ -6,61 +6,69 @@ import com.opencsv.CSVWriter;
 
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class AddressBookCSVIO {
 
-    public void writeContactsToCSV(String fileName, List<Contact> contactList) {
+    public static void writeContactsToCSV(String filePath, List<Contact> contacts) {
 
-        try(CSVWriter writer = new CSVWriter(new FileWriter(fileName))) {
+        try(CSVWriter writer = new CSVWriter(new FileWriter(filePath))) {
 
-            // Header
-            String[] header = {"firstName","lastName","address","city","state","zip","phoneNumber","email"};
-            writer.writeNext(header);
-
-            for(Contact contact : contactList) {
+            for(Contact contact : contacts) {
 
                 String[] data = {
                         contact.getFirstName(),
                         contact.getLastName(),
-                        contact.getAddress(),
                         contact.getCity(),
                         contact.getState(),
-                        contact.getZip(),
-                        contact.getPhoneNumber(),
-                        contact.getEmail()
+                        contact.getZip()
                 };
 
                 writer.writeNext(data);
             }
 
-            System.out.println("Contacts written to CSV successfully.");
-
-        }catch(IOException e) {
-            System.out.println("Error writing CSV: " + e.getMessage());
+        } catch(Exception e) {
+            throw new RuntimeException("CSV write error", e);
         }
     }
-    
-    public void readContactsFromCSV(String fileName) {
 
-        try(CSVReader reader = new CSVReader(new FileReader(fileName))) {
+    public static List<Contact> readContactsFromCSV(String filePath) {
 
-            String[] line;
+        List<Contact> contacts = new ArrayList<>();
 
-            System.out.println("\nContacts from CSV file:");
+        try (CSVReader reader = new CSVReader(new FileReader(filePath))) {
 
-            while((line = reader.readNext()) != null) {
+            String[] data;
 
-                for(String value : line) {
-                    System.out.print(value + " | ");
-                }
+            while ((data = reader.readNext()) != null) {
 
-                System.out.println();
+                // skip empty rows
+                if (data.length == 0 || data[0].trim().isEmpty())
+                    continue;
+
+                // ensure minimum columns exist
+                if (data.length < 5)
+                    continue;
+
+                Contact contact = new Contact(
+                        data[0],  // first name
+                        data[1],  // last name
+                        "",
+                        data[2],  // city
+                        data[3],  // state
+                        data[4],  // zip
+                        "",
+                        ""
+                );
+
+                contacts.add(contact);
             }
 
-        } catch(Exception e) {
-            System.out.println("Error reading CSV: " + e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException("CSV read error", e);
         }
+
+        return contacts;
     }
 }

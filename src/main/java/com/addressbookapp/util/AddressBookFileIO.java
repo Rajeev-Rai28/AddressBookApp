@@ -2,36 +2,64 @@ package com.addressbookapp.util;
 
 import com.addressbookapp.model.Contact;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 
 public class AddressBookFileIO {
 
-    public void writeContactsToFile(String fileName, List<Contact> contactList) {
-        try(FileWriter writer = new FileWriter(fileName)) {
-            for(Contact contact : contactList) {
-                writer.write(contact.toString());
-                writer.write(System.lineSeparator());
+    public static void writeContactsToFile(String filePath, List<Contact> contacts) {
+
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+
+            for(Contact contact : contacts) {
+
+                writer.write(
+                        contact.getFirstName() + "," +
+                        contact.getLastName() + "," +
+                        contact.getCity() + "," +
+                        contact.getState() + "," +
+                        contact.getZip()
+                );
+
+                writer.newLine();
             }
-            System.out.println("Contacts written to file successfully.");
-        }catch(IOException e) {
-            System.out.println("Error while writing to file: " + e.getMessage());
+
+        } catch(IOException e) {
+            throw new RuntimeException("Error writing file", e);
         }
     }
 
-    public void readContactsFromFile(String fileName) {
-        try(BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+
+    public static List<Contact> readContactsFromFile(String filePath) {
+
+        List<Contact> contacts = new ArrayList<>();
+
+        try(BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+
             String line;
 
-            System.out.println("\nContacts from file:");
             while((line = reader.readLine()) != null) {
-                System.out.println(line);
+
+                String[] data = line.split(",");
+
+                Contact contact = new Contact(
+                        data[0],
+                        data[1],
+                        "",
+                        data[2],
+                        data[3],
+                        data[4],
+                        "",
+                        ""
+                );
+
+                contacts.add(contact);
             }
-        }catch(IOException e) {
-            System.out.println("Error while reading from file: " + e.getMessage());
+
+        } catch(IOException e) {
+            throw new RuntimeException("Error reading file", e);
         }
+
+        return contacts;
     }
 }
